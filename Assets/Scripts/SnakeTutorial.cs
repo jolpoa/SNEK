@@ -21,6 +21,8 @@ public class SnakeTutorial : MonoBehaviour {
 	private Sprite _bodySprite;
 	private Sprite _tailSprite;
 
+	Object[] _sprites;
+
 	void Start () {
 		initSNEK ();
 		SpriteLoads ();
@@ -59,17 +61,16 @@ public class SnakeTutorial : MonoBehaviour {
 
 		if (((prevPartX > currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX > currentPartX))) {
 			return "down-to-right";
-		}
-		else if (((prevPartX > currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY && nextPartX > currentPartX))) {
+		} else if (((prevPartX > currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY && nextPartX > currentPartX))) {
 			return "up-to-right";
-		}
-		else if (((prevPartX < currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX < currentPartX))) {
+		} else if (((prevPartX < currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX < currentPartX))) {
 			return "down-to-left";
-		}
-		else if (((prevPartX < currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY) && (nextPartX < currentPartX))) {
+		} else if (((prevPartX < currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY) && (nextPartX < currentPartX))) {
 			return "up-to-left";
+		} else if (prevPartY != currentPartY) {
+			return "same-vertical";
 		}
-		return "same";
+		return "same-horizontal";
 
 	}
 
@@ -123,9 +124,10 @@ public class SnakeTutorial : MonoBehaviour {
 
 	void SpriteLoads()		//lol, just like in name, it is loading sprites from resources
 	{
-		_turnSprite = Resources.Load<Sprite> ("Graphics/Turn") as Sprite;
-		_bodySprite = Resources.Load<Sprite> ("Graphics/Body1") as Sprite;
-		_tailSprite = Resources.Load<Sprite> ("Graphics/Tail") as Sprite;
+		_sprites = Resources.LoadAll ("Graphics/SnakeTiles");
+		_bodySprite = (Sprite)_sprites[2];
+		_turnSprite = (Sprite)_sprites[3];
+		_tailSprite = (Sprite)_sprites[4];
 		Snake [Snake.Count - 1].GetComponent <SpriteRenderer> ().sprite = _tailSprite;
 	}
 
@@ -177,20 +179,23 @@ public class SnakeTutorial : MonoBehaviour {
 			if (j > 0) {
 				if (j < Snake.Count - 1) {
 					curve = CheckCurve (j - 1, j, j + 1);
-					if (curve == "same") {
-						Snake [j].GetComponent <SpriteRenderer> ().sprite = _bodySprite;
+					if (curve == "same-vertical") {
+						PaintSpriteBody (j, new Vector3 (0, 0, 90));
 					} 
+					else if (curve == "same-horizontal") {
+						PaintSpriteBody (j, new Vector3 (0, 0, 0));
+					}
 					else if (curve == "up-to-left") {
-						PaintSprite (j, new Vector3 (0, 0, 0));
+						PaintSpriteTurn (j, new Vector3 (0, 0, 180));
 					} 
 					else if (curve == "up-to-right") {
-						PaintSprite (j, new Vector3 (0, 0, 270));
+						PaintSpriteTurn (j, new Vector3 (0, 0, 90));
 					} 
 					else if (curve == "down-to-right") {
-						PaintSprite (j, new Vector3 (0, 0, 180));
+						PaintSpriteTurn (j, new Vector3 (0, 0, 0));
 					} 
 					else if (curve == "down-to-left") {
-						PaintSprite (j, new Vector3 (0, 0, 90));
+						PaintSpriteTurn (j, new Vector3 (0, 0, 270));
 					}
 				}
 			}
@@ -206,19 +211,18 @@ public class SnakeTutorial : MonoBehaviour {
 		float currentPartY = Snake [0].transform.position.y;
 
 		if (((prevPartX > currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX > currentPartX))) {
-			PaintSprite (0, new Vector3 (0, 0, 180));
+			PaintSpriteTurn (0, new Vector3 (0, 0, 0));
+		} else if (((prevPartX > currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY && nextPartX > currentPartX))) {
+			PaintSpriteTurn (0, new Vector3 (0, 0, 90));
+		} else if (((prevPartX < currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX < currentPartX))) {
+			PaintSpriteTurn (0, new Vector3 (0, 0, 270));
+		} else if (((prevPartX < currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY) && (nextPartX < currentPartX))) {
+			PaintSpriteTurn (0, new Vector3 (0, 0, 180));
+		} else if (prevPartY != currentPartY) {
+			PaintSpriteBody (0, new Vector3 (0, 0, 90));
+		} else {
+			PaintSpriteBody (0, new Vector3 (0, 0, 0));
 		}
-		else if (((prevPartX > currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY && nextPartX > currentPartX))) {
-			PaintSprite (0, new Vector3 (0, 0, 270));
-		}
-		else if (((prevPartX < currentPartX) && (nextPartY < currentPartY)) || ((prevPartY < currentPartY) && (nextPartX < currentPartX))) {
-			PaintSprite (0, new Vector3 (0, 0, 90));
-		}
-		else if (((prevPartX < currentPartX) && (nextPartY > currentPartY)) || ((prevPartY > currentPartY) && (nextPartX < currentPartX))) {
-			PaintSprite (0, new Vector3 (0, 0, 0));
-		}
-		else Snake [0].GetComponent <SpriteRenderer> ().sprite = _bodySprite;
-
 		RotateTail ();
 	}
 
@@ -242,13 +246,17 @@ public class SnakeTutorial : MonoBehaviour {
 
 
 
-	void PaintSprite(int ID, Vector3 localEulerAngles)
+	void PaintSpriteTurn(int ID, Vector3 localEulerAngles)
 	{
 		Snake [ID].GetComponent <SpriteRenderer> ().sprite = _turnSprite;
 		Snake [ID].transform.localEulerAngles = localEulerAngles;
 	}
 
-
+	void PaintSpriteBody(int ID, Vector3 localEulerAngles)
+	{
+		Snake [ID].GetComponent <SpriteRenderer> ().sprite = _bodySprite;
+		Snake [ID].transform.localEulerAngles = localEulerAngles;
+	}
 
 
 	void RotateTail()
@@ -261,13 +269,13 @@ public class SnakeTutorial : MonoBehaviour {
 
 
 		if (nextToTailY > tailY)
-			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 0);
-		if (nextToTailY < tailY)
-			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 180);
-		if (nextToTailX > tailX)
-			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 270);
-		if (nextToTailX < tailX)
 			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 90);
+		if (nextToTailY < tailY)
+			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 270);
+		if (nextToTailX > tailX)
+			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 0);
+		if (nextToTailX < tailX)
+			Snake [Snake.Count - 1].transform.localEulerAngles = new Vector3 (0, 0, 180);
 	}
 
 

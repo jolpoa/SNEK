@@ -6,10 +6,14 @@ using UnityEngine;
 public class TimeController : MonoBehaviour {
 
 	public float TimeToMove;
-	public Text elTime;
+
+	public Text TimeText;
+
+	public int _elapsedTimeAtAll_int { get; set; }
 
 
-	private float elapsedTime;
+	private float elapsedTimeFromLastUpgrade;
+	private float elapsedTimeAtAll;
 
 
 	void Update()
@@ -19,22 +23,24 @@ public class TimeController : MonoBehaviour {
 
 	void SetTime()		//Function to calculate how much time elapsed from last update of snake
 	{
-		elapsedTime += Time.deltaTime;
-		ShowTime ();
+		elapsedTimeFromLastUpgrade += Time.deltaTime;
+		elapsedTimeAtAll += Time.deltaTime;
+		ChangeTimeText ();
 	}
 		
 
-	void ShowTime()		//func to "draw" time on screen
+	void ChangeTimeText()		//func to "draw" time on screen
 	{
-		elTime.text = "Time :" + elapsedTime.ToString ();
+		_elapsedTimeAtAll_int = (int)elapsedTimeAtAll;
+		TimeText.text = "Time\n" +_elapsedTimeAtAll_int.ToString ();
 	}
 
 
 	public bool ItIsTime()		//func to test if it is time to update snek
 	{
-		if (elapsedTime >= TimeToMove) 
+		if (elapsedTimeFromLastUpgrade >= TimeToMove) 
 		{
-			elapsedTime = 0;
+			elapsedTimeFromLastUpgrade = 0;
 			return true;
 		} 
 		else

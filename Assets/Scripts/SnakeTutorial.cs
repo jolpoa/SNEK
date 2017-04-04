@@ -9,6 +9,8 @@ public class SnakeTutorial : MonoBehaviour {
 
 	public TimeController _timeController;
 
+	private SpriteRenderer _spriteRenderer;
+
 	public int sizeOfSnakeAtStart;
 
 
@@ -20,8 +22,9 @@ public class SnakeTutorial : MonoBehaviour {
 	private Sprite _turnSprite;
 	private Sprite _bodySprite;
 	private Sprite _tailSprite;
+	private Sprite _headWithBloodSprite;
 
-	Object[] _sprites;
+	//Object[] _sprites;
 
 	void Start () {
 		initSNEK ();
@@ -124,10 +127,16 @@ public class SnakeTutorial : MonoBehaviour {
 
 	void SpriteLoads()		//lol, just like in name, it is loading sprites from resources
 	{
-		_sprites = Resources.LoadAll ("Graphics/SnakeTiles");
-		_bodySprite = (Sprite)_sprites[2];
-		_turnSprite = (Sprite)_sprites[3];
-		_tailSprite = (Sprite)_sprites[4];
+		_spriteRenderer = GetComponent<SpriteRenderer> ();
+
+		_bodySprite = Resources.Load<Sprite> ("Graphics/Body") as Sprite;
+		_turnSprite = Resources.Load<Sprite> ("Graphics/Turn") as Sprite;
+		_tailSprite = Resources.Load<Sprite> ("Graphics/Tail") as Sprite;
+		_headWithBloodSprite = Resources.Load<Sprite> ("Graphics/HeadWithBlood") as Sprite;
+		//_sprites = Resources.LoadAll ("Graphics/SnakeTiles");
+		//_bodySprite = (Sprite)_sprites[2];
+		//_turnSprite = (Sprite)_sprites[3];
+		//_tailSprite = (Sprite)_sprites[4];
 		Snake [Snake.Count - 1].GetComponent <SpriteRenderer> ().sprite = _tailSprite;
 	}
 
@@ -236,9 +245,11 @@ public class SnakeTutorial : MonoBehaviour {
 			appendToSnake ();
 			Snake [Snake.Count - 1].transform.position = LastPositionOfTail;
 			Snake [Snake.Count - 1].GetComponent <SpriteRenderer> ().sprite = _tailSprite;
-		}
-		else if (other.gameObject.CompareTag ("Snek")) {
-			_timeController.FreezeTime ();
+		} else if (other.gameObject.CompareTag ("Snek")) {
+			_spriteRenderer.sprite = _headWithBloodSprite;
+			//_timeController.FreezeTime ();
+		} else if (other.gameObject.CompareTag ("Wall")) {
+			_spriteRenderer.sprite = _headWithBloodSprite;
 		}
 			
 	}
@@ -256,6 +267,7 @@ public class SnakeTutorial : MonoBehaviour {
 	{
 		Snake [ID].GetComponent <SpriteRenderer> ().sprite = _bodySprite;
 		Snake [ID].transform.localEulerAngles = localEulerAngles;
+
 	}
 
 

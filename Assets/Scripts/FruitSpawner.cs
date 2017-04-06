@@ -8,10 +8,13 @@ public class FruitSpawner : MonoBehaviour {
 
 	public BackGround _background;
 
-	private Matrix Tiles;
+	public Fruit _fruit;
+
+	private Matrix Tiles { get; set; }
 
 	void Awake () {
-		Tiles = new Matrix (_background.xNumberOfTiles, _background.yNumberOfTiles);
+		Tiles = new Matrix ();
+		SetUpTiles ();
 	}
 	
 	// Update is called once per frame
@@ -20,42 +23,62 @@ public class FruitSpawner : MonoBehaviour {
 		CheckWhereIsSnake ();
 	}
 
-	void Update()
-	{
-		Debug.Log (Tiles.tab[5][5]);
-	}
-
 
 	private void BlankTiles()
 	{
 		for (int i = 0; i < Tiles.R; i++) {
 			for (int j = 0; j < Tiles.C; j++) {
-				Tiles.tab [i] [j] = 0;
+				Tiles.tab [i,j] = false;
 			}
 		}
 	}
 
 	private void CheckWhereIsSnake()
 	{
-		Tiles.tab [_snake.transform.position.x] [_snake.transform.position.y] = true;
+		Tiles.tab [(int)_snake.transform.position.x + (_background.xNumberOfTiles / 2) + 1, (int)_snake.transform.position.y + (_background.yNumberOfTiles / 2) + 1] = true;
 
 		for (int i = 0; i < _snake.Parts.Count; i++) {
-			Tiles.tab [_snake.Parts[i].transform.position.x] [_snake.Parts[i].transform.position.y] = true;
+			Tiles.tab [(int)_snake.Parts[i].transform.position.x + 6, (int)_snake.Parts[i].transform.position.y + 4] = true;
 		}
 	}
+
+	public void SpawnFruit ()
+	{
+		bool spawned = false;
+
+		int xSpawnedPosition;
+		int ySpawnedPosition;
+
+		int _xNumberOfTiles = _background.xNumberOfTiles;
+		int _yNumberOfTiles = _background.yNumberOfTiles;
+
+		while (!spawned) {
+
+			xSpawnedPosition = Random.Range (0, _xNumberOfTiles );
+			ySpawnedPosition = Random.Range (0, _yNumberOfTiles );
+
+			if (Tiles.tab [xSpawnedPosition, ySpawnedPosition] == true)
+				continue;
+
+			_fruit.transform.position = new Vector3 ((float)xSpawnedPosition - (_background.xNumberOfTiles / 2), (float)ySpawnedPosition - (_background.yNumberOfTiles / 2), 0f);
+
+			spawned = true;
+		}
+
+	}
+
 
 	public class Matrix
 	{
 		public bool[,] tab;
 		public int R;
 		public int C;
+	}
 
-		public Matrix (int row, int collumn)
-		{
-			this.R = row;
-			this.C = collumn;
-			this.tab = new bool[row, collumn];
-		}
-
+	public void SetUpTiles()
+	{
+		Tiles.tab = new bool[_background.xNumberOfTiles + 1, _background.yNumberOfTiles + 1];
+		Tiles.R = _background.xNumberOfTiles;
+		Tiles.C = _background.yNumberOfTiles;
 	}
 }

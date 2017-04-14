@@ -16,6 +16,11 @@ public class FruitSpawner : MonoBehaviour {
 		Tiles = new Matrix ();
 		SetUpTiles ();
 	}
+
+	void Start() {
+		SpawnFruit ();
+		_fruit.gameObject.SetActive (true);
+	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {

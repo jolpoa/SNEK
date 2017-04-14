@@ -10,7 +10,15 @@ public class Fruit : MonoBehaviour {
 	public float ScalingSize;
 
 	public FruitSpawner _fruitSpawner;
+
+	private AudioSource Munch;
+
 	private float pomocnicza;
+
+	void Awake()
+	{
+		Munch = GetComponent<AudioSource> ();
+	}
 
 	void FixedUpdate () {
 		pomocnicza = Mathf.Cos (Time.timeSinceLevelLoad * ScalingSpeed);
@@ -21,6 +29,7 @@ public class Fruit : MonoBehaviour {
 	public void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.gameObject.CompareTag ("Snek")) {
+			Munch.Play ();
 			_fruitSpawner.SpawnFruit ();
 		}
 

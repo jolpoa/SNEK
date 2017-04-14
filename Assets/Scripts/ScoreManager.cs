@@ -9,20 +9,23 @@ public class ScoreManager : MonoBehaviour {
 
 	public Text ScoreText;
 
-	private int Score { get; set; }
+	public int Score { get; set; }
 
 
 	void Update()
 	{
-		SetTime ();
+		SetScore ();
 	}
 
-	void SetTime()		//Function to calculate how much time elapsed from last update of snake
+	void SetScore()		//Function to calculate how much time elapsed from last update of snake
 	{
-		Score = _snake.Score;
 		ChangeScoreText ();
 	}
 
+	public void ResetScore()
+	{
+		Score = 0;
+	}
 
 	void ChangeScoreText()		//func to "draw" time on screen
 	{

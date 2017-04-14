@@ -43,4 +43,5 @@ public class SnakeInput : MonoBehaviour {
 		UpdateSnake (snake);
 
 	}
+		
 }
